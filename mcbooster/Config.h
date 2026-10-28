@@ -17,6 +17,7 @@
 #define OMP 2
 #define TBB 3
 #define CPP 4
+#define HIP 5
 
 #if(__cplusplus < 201103L) && !defined(_MSV_VER)
 #error "This library needs a C++11 compliant compiler"
@@ -26,9 +27,10 @@
 #define MCBOOSTER_BACKEND CUDA
 #endif
 
-#if MCBOOSTER_BACKEND != CUDA && MCBOOSTER_BACKEND != OMP && MCBOOSTER_BACKEND != TBB && MCBOOSTER_BACKEND != CPP
+#if MCBOOSTER_BACKEND != CUDA && MCBOOSTER_BACKEND != OMP && MCBOOSTER_BACKEND != TBB && MCBOOSTER_BACKEND != CPP \
+    && MCBOOSTER_BACKEND != HIP
 
-#error "MCBooster: Backend not supported. MCBOOSTER_BACKEND = CUDA, OMP, TBB, or CPP"
+#error "MCBooster: Backend not supported. MCBOOSTER_BACKEND = CUDA, HIP, OMP, TBB, or CPP"
 
 #endif
 
@@ -37,6 +39,8 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <cuda_runtime_api.h>
+#elif MCBOOSTER_BACKEND == HIP
+#include <hip/hip_runtime.h>
 #elif MCBOOSTER_BACKEND != CPP
 #include <omp.h>
 #endif

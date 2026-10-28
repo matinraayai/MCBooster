@@ -40,7 +40,7 @@ namespace mcbooster {
 template<typename T>
 using mc_device_vector = thrust::device_vector<T>;
 
-#elif(MCBOOSTER_BACKEND == CUDA)
+#elif(MCBOOSTER_BACKEND == CUDA || MCBOOSTER_BACKEND == HIP)
 /*!
  * Generic template typedef for thrust::host_vector. Use it instead of Thrust implementation
  * in order to avoid problems to compile OpenMP based applications using gcc and without a cuda runtime installation.

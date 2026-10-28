@@ -295,6 +295,12 @@ class PhaseSpace {
     }
 
   private:
+    /**
+     * Copy the accepted entries of a device vector into a host vector.
+     */
+    template <typename DeviceVector, typename HostVector>
+    inline void copy_accepted(const DeviceVector &source, HostVector &target) const;
+
     GLong_t fNEvents;   ///< Number of events.
     GInt_t fNDaughters; ///< Number of daughters.
     GUInt_t fSeed{0};   ///< seed.
@@ -309,6 +315,18 @@ class PhaseSpace {
     BoolVector_d fAccRejFlags;     ///< Device vector of Accept/reject flags
     Particles_d fDaughters[kMAXP]; ///< Array of device vectors with the daughter four-vectors
 };
+
+template <typename DeviceVector, typename HostVector>
+inline void PhaseSpace::copy_accepted(const DeviceVector &source, HostVector &target) const {
+#if MCBOOSTER_BACKEND == HIP
+    // Thrust cannot copy_if across memory systems: compact on the device, then copy to the host
+    DeviceVector accepted(fNAccepted);
+    thrust::copy_if(source.begin(), source.end(), fAccRejFlags.begin(), accepted.begin(), isAccepted());
+    thrust::copy(accepted.begin(), accepted.end(), target.begin());
+#else
+    thrust::copy_if(source.begin(), source.end(), fAccRejFlags.begin(), target.begin(), isAccepted());
+#endif
+}
 
 inline GULong_t PhaseSpace::Unweight() {
     /**
@@ -343,30 +361,21 @@ inline void PhaseSpace::ExportUnweighted(Events *_Events) {
     _Events->fMaxWeight = fMaxWeight;
 
 #if MCBOOSTER_BACKEND != CUDA
-#if MCBOOSTER_BACKEND != CPP
+#if MCBOOSTER_BACKEND != CPP && MCBOOSTER_BACKEND != HIP
 #pragma omp parallel num_threads(fNDaughters + 1)
     {
 #else
-    for(size_t val = 0; val < fNDaughters; val++) {
+    // One pass per daughter, plus one (val == fNDaughters) for the weights and flags
+    for(size_t val = 0; val <= fNDaughters; val++) {
         auto omp_get_thread_num = [&val]() { return val; };
 #endif
         if(omp_get_thread_num() < fNDaughters) {
-            thrust::copy_if(fDaughters[omp_get_thread_num()].begin(),
-                            fDaughters[omp_get_thread_num()].end(),
-                            fAccRejFlags.begin(),
-                            _Events->fDaughters[omp_get_thread_num()].begin(),
-                            isAccepted());
+            copy_accepted(fDaughters[omp_get_thread_num()], _Events->fDaughters[omp_get_thread_num()]);
         }
 
         if(omp_get_thread_num() == fNDaughters) {
-            thrust::copy_if(
-                fWeights.begin(), fWeights.end(), fAccRejFlags.begin(), _Events->fWeights.begin(), isAccepted());
-
-            thrust::copy_if(fAccRejFlags.begin(),
-                            fAccRejFlags.end(),
-                            fAccRejFlags.begin(),
-                            _Events->fAccRejFlags.begin(),
-                            isAccepted());
+            copy_accepted(fWeights, _Events->fWeights);
+            copy_accepted(fAccRejFlags, _Events->fAccRejFlags);
         }
     }
 
@@ -415,11 +424,12 @@ inline void PhaseSpace::Export(Events *_Events) {
     _Events->fMaxWeight = fMaxWeight;
 
 #if MCBOOSTER_BACKEND != CUDA
-#if MCBOOSTER_BACKEND != CPP
+#if MCBOOSTER_BACKEND != CPP && MCBOOSTER_BACKEND != HIP
 #pragma omp parallel num_threads(fNDaughters + 1)
     {
 #else
-    for(size_t val = 0; val < fNDaughters; val++) {
+    // One pass per daughter, plus one (val == fNDaughters) for the weights and flags
+    for(size_t val = 0; val <= fNDaughters; val++) {
         auto omp_get_thread_num = [&val]() { return val; };
 #endif
 

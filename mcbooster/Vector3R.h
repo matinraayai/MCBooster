@@ -51,79 +51,79 @@ class Vector3R {
     GReal_t v[3];
 };
 
-inline Vector3R &Vector3R::operator*=(const GReal_t c) {
+__host__ __device__ inline Vector3R &Vector3R::operator*=(const GReal_t c) {
     v[0] *= c;
     v[1] *= c;
     v[2] *= c;
     return *this;
 }
 
-inline Vector3R &Vector3R::operator/=(const GReal_t c) {
+__host__ __device__ inline Vector3R &Vector3R::operator/=(const GReal_t c) {
     v[0] /= c;
     v[1] /= c;
     v[2] /= c;
     return *this;
 }
 
-inline Vector3R &Vector3R::operator+=(const Vector3R &v2) {
+__host__ __device__ inline Vector3R &Vector3R::operator+=(const Vector3R &v2) {
     v[0] += v2.v[0];
     v[1] += v2.v[1];
     v[2] += v2.v[2];
     return *this;
 }
 
-inline Vector3R &Vector3R::operator-=(const Vector3R &v2) {
+__host__ __device__ inline Vector3R &Vector3R::operator-=(const Vector3R &v2) {
     v[0] -= v2.v[0];
     v[1] -= v2.v[1];
     v[2] -= v2.v[2];
     return *this;
 }
 
-inline Vector3R operator*(GReal_t c, const Vector3R &v2) { return Vector3R(v2) *= c; }
+__host__ __device__ inline Vector3R operator*(GReal_t c, const Vector3R &v2) { return Vector3R(v2) *= c; }
 
-inline Vector3R operator*(const Vector3R &v1, GReal_t c) { return Vector3R(v1) *= c; }
+__host__ __device__ inline Vector3R operator*(const Vector3R &v1, GReal_t c) { return Vector3R(v1) *= c; }
 
-inline Vector3R operator/(const Vector3R &v1, GReal_t c) { return Vector3R(v1) /= c; }
+__host__ __device__ inline Vector3R operator/(const Vector3R &v1, GReal_t c) { return Vector3R(v1) /= c; }
 
-inline GReal_t operator*(const Vector3R &v1, const Vector3R &v2) {
+__host__ __device__ inline GReal_t operator*(const Vector3R &v1, const Vector3R &v2) {
     return v1.v[0] * v2.v[0] + v1.v[1] * v2.v[1] + v1.v[2] * v2.v[2];
 }
 
-inline Vector3R operator+(const Vector3R &v1, const Vector3R &v2) { return Vector3R(v1) += v2; }
+__host__ __device__ inline Vector3R operator+(const Vector3R &v1, const Vector3R &v2) { return Vector3R(v1) += v2; }
 
-inline Vector3R operator-(const Vector3R &v1, const Vector3R &v2) { return Vector3R(v1) -= v2; }
+__host__ __device__ inline Vector3R operator-(const Vector3R &v1, const Vector3R &v2) { return Vector3R(v1) -= v2; }
 
-inline GReal_t Vector3R::get(GInt_t i) const { return v[i]; }
+__host__ __device__ inline GReal_t Vector3R::get(GInt_t i) const { return v[i]; }
 
-inline void Vector3R::set(GInt_t i, GReal_t d) { v[i] = d; }
+__host__ __device__ inline void Vector3R::set(GInt_t i, GReal_t d) { v[i] = d; }
 
-inline void Vector3R::set(GReal_t x, GReal_t y, GReal_t z) {
+__host__ __device__ inline void Vector3R::set(GReal_t x, GReal_t y, GReal_t z) {
     v[0] = x;
     v[1] = y;
     v[2] = z;
 }
 
-inline Vector3R::Vector3R() { v[0] = v[1] = v[2] = 0.0; }
+__host__ __device__ inline Vector3R::Vector3R() { v[0] = v[1] = v[2] = 0.0; }
 
-inline Vector3R::Vector3R(GReal_t x, GReal_t y, GReal_t z) {
+__host__ __device__ inline Vector3R::Vector3R(GReal_t x, GReal_t y, GReal_t z) {
     v[0] = x;
     v[1] = y;
     v[2] = z;
 }
 
-inline Vector3R::Vector3R(const Vector3R &other) {
+__host__ __device__ inline Vector3R::Vector3R(const Vector3R &other) {
     v[0] = other.get(0);
     v[1] = other.get(1);
     v[2] = other.get(2);
 }
 
-inline Vector3R rotateEuler(const Vector3R &v, GReal_t alpha, GReal_t beta, GReal_t gamma) {
+__host__ __device__ inline Vector3R rotateEuler(const Vector3R &v, GReal_t alpha, GReal_t beta, GReal_t gamma) {
     Vector3R tmp(v);
     tmp.applyRotateEuler(alpha, beta, gamma);
     return tmp;
 }
 
-inline void Vector3R::applyRotateEuler(GReal_t phi, GReal_t theta, GReal_t ksi) {
+__host__ __device__ inline void Vector3R::applyRotateEuler(GReal_t phi, GReal_t theta, GReal_t ksi) {
     GReal_t temp[3];
     GReal_t sp, st, sk, cp, ct, ck;
 
@@ -149,7 +149,7 @@ inline ostream &operator<<(ostream &s, const Vector3R &v) {
     return s;
 }
 
-inline Vector3R cross(const Vector3R &p1, const Vector3R &p2) {
+__host__ __device__ inline Vector3R cross(const Vector3R &p1, const Vector3R &p2) {
     // Calcs the cross product.  Added by djl on July 27, 1995.
     // Modified for real vectros by ryd Aug 28-96
 
@@ -158,7 +158,7 @@ inline Vector3R cross(const Vector3R &p1, const Vector3R &p2) {
                     p1.v[0] * p2.v[1] - p1.v[1] * p2.v[0]);
 }
 
-inline GReal_t Vector3R::d3mag() const
+__host__ __device__ inline GReal_t Vector3R::d3mag() const
 
 // returns the 3 momentum mag.
 {
@@ -170,7 +170,7 @@ inline GReal_t Vector3R::d3mag() const
     return temp;
 } // r3mag
 
-inline GReal_t Vector3R::dot(const Vector3R &p2) {
+__host__ __device__ inline GReal_t Vector3R::dot(const Vector3R &p2) {
     GReal_t temp;
 
     temp = v[0] * p2.v[0];

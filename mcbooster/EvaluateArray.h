@@ -250,7 +250,7 @@ void EvaluateArray(const CUSTOMFUNC funcObj, ParticlesSet_d &pset, VariableSet_h
     }
 
 #if MCBOOSTER_BACKEND != CUDA
-#if MCBOOSTER_BACKEND != CPP
+#if MCBOOSTER_BACKEND != CPP && MCBOOSTER_BACKEND != HIP
 #pragma omp parallel num_threads(arrayWidth)
     {
 #else
@@ -510,7 +510,7 @@ void EvaluateArray(const CUSTOMFUNC funcObj, ParticlesSet_d &pset, VariableSet_d
                          Calculate3<CUSTOMFUNC>(funcObj));
     }
 #if MCBOOSTER_BACKEND != CUDA
-#if MCBOOSTER_BACKEND != CPP
+#if MCBOOSTER_BACKEND != CPP && MCBOOSTER_BACKEND != HIP
 #pragma omp parallel num_threads(arrayWidth)
     {
 #else
